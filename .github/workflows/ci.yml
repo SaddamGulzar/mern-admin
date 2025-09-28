@@ -1,4 +1,4 @@
-name: Node.js CI/CD
+name: Node.js CI/CD with Docker MongoDB
 
 on:
   push:
@@ -38,14 +38,19 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Install & start MongoDB
+      - name: Ensure Docker is installed
         run: |
-          sudo apt update
-          sudo apt install -y mongodb-org
-          sudo systemctl start mongod
-          sudo systemctl enable mongod
-          # Wait a few seconds for MongoDB to initialize
-          sleep 5
+          if ! command -v docker &> /dev/null; then
+            curl -fsSL https://get.docker.com | sh
+            sudo usermod -aG docker $USER
+          fi
+
+      - name: Start MongoDB Docker container
+        run: |
+          docker pull mongo:6
+          docker rm -f mern-mongo || echo "No existing container"
+          docker run -d --name mern-mongo -p 27017:27017 \
+            -e MONGO_INITDB_DATABASE=mern-admin mongo:6
 
       - name: Patch server.js for public access
         run: |
