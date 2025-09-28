@@ -1,50 +1,43 @@
-name: Deploy MERN App
+name: CI/CD Workflow
 
+# Trigger on push to master branch and also allow manual runs
 on:
   push:
     branches:
       - master
+  workflow_dispatch:
 
 jobs:
-  deploy:
+  build-and-deploy:
+    # Use your self-hosted runner
     runs-on: self-hosted
 
     steps:
-      - name: Checkout repo
+      # Step 1: Checkout the repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Node.js 20
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '20'  # adjust if needed
 
+      # Step 3: Install dependencies
       - name: Install dependencies
         run: npm install
 
-      - name: Build app (if needed)
-        run: npm run build || echo "No build step defined"
+      # Step 4: Run tests (optional)
+      - name: Run tests
+        run: npm test
 
-      - name: Ensure .env exists
+      # Step 5: Build project (if applicable)
+      - name: Build project
+        run: npm run build
+
+      # Step 6: Deploy (example)
+      - name: Deploy to server
         run: |
-          if [ ! -f .env ]; then
-            echo "Creating default .env file..."
-            cat <<EOT >> .env
-MONGO_URI=your_mongo_uri_here
-SESSION_SECRET=your_session_secret_here
-PORT=8086
-EOT
-          else
-            echo ".env file exists"
-          fi
-
-      - name: Load environment variables from .env
-        run: export $(grep -v '^#' .env | xargs)
-
-      - name: Install PM2
-        run: npm install -g pm2
-
-      - name: Start/Restart app with PM2
-        run: |
-          pm2 describe mern-admin || pm2 start npm --name "mern-admin" -- start
-          pm2 restart mern-admin
-          pm2 save
+          echo "Deploying app..."
+          # Add your deployment commands here
+          # Example: scp, ssh, docker-compose, etc.
