@@ -87,6 +87,11 @@ jobs:
           export PORT=8087
           export NODE_ENV=production
           export DB_URI=mongodb://localhost:27017/mern-admin
+          export SESSION_SECRET=mysecret123
+          
+          # Optional debug: test startup before PM2
+          node server.js & sleep 5 && pkill -f "node server.js" || echo "Node startup test passed"
+
           npm install -g pm2
           pm2 delete mern-admin || echo "No previous PM2 app"
           pm2 start server.js --name mern-admin --watch --no-daemon
