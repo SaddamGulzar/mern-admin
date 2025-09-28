@@ -1,0 +1,77 @@
+name: Node.js CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run setup script
+        run: npm run setup
+
+  deploy:
+    runs-on: self-hosted
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Set environment variables
+        run: |
+          echo "PORT=8087" >> $GITHUB_ENV
+          echo "NODE_ENV=production" >> $GITHUB_ENV
+
+      - name: Stop existing app (if running)
+        run: |
+          pkill -f "node server.js" || echo "No existing process"
+
+      - name: Start app with PM2
+        run: |
+          npm install -g pm2
+          pm2 start server.js --name mern-admin --watch
+          pm2 save
+
+      - name: Wait for app to be ready
+        run: |
+          MAX_RETRIES=15
+          COUNT=0
+          until curl -s http://localhost:8087/actuator/health || [ $COUNT -ge $MAX_RETRIES ]; do
+            echo "App not ready yet..."
+            COUNT=$((COUNT+1))
+            sleep 5
+          done
+
+  test:
+    runs-on: self-hosted
+    needs: deploy
+    steps:
+      - name: Check app response
+        run: |
+          if curl -s http://localhost:8087/ | grep -q "<!DOCTYPE html>"; then
+            echo "✅ App is running successfully!"
+          else
+            echo "❌ App is not responding!"
+            exit 1
+          fi
