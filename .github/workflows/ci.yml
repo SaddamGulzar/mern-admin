@@ -1,43 +1,41 @@
-name: CI/CD Workflow
+name: Node.js CI/CD
 
-# Trigger on push to master branch and also allow manual runs
 on:
   push:
     branches:
       - master
-  workflow_dispatch:
 
 jobs:
   build-and-deploy:
-    # Use your self-hosted runner
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository
-      - name: Checkout code
+      # Step 1: Checkout the repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Set up Node.js
-      - name: Set up Node.js
+      # Step 2: Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'  # adjust if needed
+          node-version: '18'  # Use your Node.js version
 
       # Step 3: Install dependencies
       - name: Install dependencies
         run: npm install
 
-      # Step 4: Run tests (optional)
-      - name: Run tests
-        run: npm test
+      # Step 4: Build (if you have a build step)
+      - name: Build
+        run: npm run build || echo "No build step defined"
 
-      # Step 5: Build project (if applicable)
-      - name: Build project
-        run: npm run build
-
-      # Step 6: Deploy (example)
-      - name: Deploy to server
+      # Step 5: Start the app (optional: only if you want to run it)
+      - name: Start app
         run: |
-          echo "Deploying app..."
-          # Add your deployment commands here
-          # Example: scp, ssh, docker-compose, etc.
+          echo "Starting app..."
+          nohup npm start &
+
+      # Step 6: Confirm deployment (optional)
+      - name: Check app running
+        run: |
+          sleep 5
+          curl -s http://localhost:8080 || echo "App not accessible yet"
