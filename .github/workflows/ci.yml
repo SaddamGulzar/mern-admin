@@ -52,12 +52,12 @@ jobs:
           docker run -d --name mern-mongo -p 27017:27017 \
             -e MONGO_INITDB_DATABASE=mern-admin mongo:6
 
-      - name: Wait for MongoDB to be ready
+      - name: Wait for MongoDB port
         run: |
           MAX_RETRIES=15
           COUNT=0
-          until docker exec mern-mongo mongo --eval "db.stats()" || [ $COUNT -ge $MAX_RETRIES ]; do
-            echo "Waiting for MongoDB..."
+          until nc -z localhost 27017 || [ $COUNT -ge $MAX_RETRIES ]; do
+            echo "Waiting for MongoDB port..."
             COUNT=$((COUNT+1))
             sleep 2
           done
@@ -83,12 +83,12 @@ jobs:
 
       - name: Start app with PM2
         run: |
-          # Explicitly export environment variables so PM2 can access them
+          # Explicitly export environment variables
           export PORT=8087
           export NODE_ENV=production
           export DB_URI=mongodb://localhost:27017/mern-admin
           export SESSION_SECRET=mysecret123
-          
+
           # Optional debug: test startup before PM2
           node server.js & sleep 5 && pkill -f "node server.js" || echo "Node startup test passed"
 
