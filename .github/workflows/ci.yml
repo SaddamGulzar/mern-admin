@@ -38,10 +38,18 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Install & start MongoDB
+        run: |
+          sudo apt update
+          sudo apt install -y mongodb-org
+          sudo systemctl start mongod
+          sudo systemctl enable mongod
+          # Wait a few seconds for MongoDB to initialize
+          sleep 5
+
       - name: Patch server.js for public access
         run: |
           FILE="server.js"
-          # Replace app.listen(PORT) with app.listen(PORT, '0.0.0.0')
           if grep -q "app.listen(PORT" $FILE; then
             sed -i "s/app.listen(PORT/app.listen(PORT, '0.0.0.0'/g" $FILE
             echo "✅ Patched server.js to listen on 0.0.0.0"
@@ -53,6 +61,7 @@ jobs:
         run: |
           echo "PORT=8087" >> $GITHUB_ENV
           echo "NODE_ENV=production" >> $GITHUB_ENV
+          echo "DB_URI=mongodb://localhost:27017/mern-admin" >> $GITHUB_ENV
 
       - name: Open port 8087 for public access
         run: |
