@@ -12,7 +12,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Remove old containers
+      - name: Cleanup old containers
         run: |
           echo "Cleaning up old containers..."
           docker rm -f mern-admin || true

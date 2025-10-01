@@ -18,6 +18,7 @@ services:
       - "8192:8192"
     environment:
       - MONGO_URL=mongodb://mongo:27017/mern-admin
+      - DB_URI=mongodb://mongo:27017/mern-admin
     depends_on:
       - mongo
 
