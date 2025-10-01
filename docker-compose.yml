@@ -15,7 +15,6 @@ services:
     ports:
       - "8192:8192"
     environment:
-      # These will be overridden by GitHub Actions workflow inline variables
       DATABASE: mongodb://mongo:27017/mydb
       SECRET: mySuperSecret
       KEY: mySessionKey

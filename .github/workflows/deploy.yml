@@ -21,16 +21,8 @@ jobs:
 
       - name: Deploy with Docker Compose
         run: |
-          DATABASE=mongodb://mongo:27017/mydb \
-          SECRET=mySuperSecret \
-          KEY=mySessionKey \
           docker compose down -v
-
-          DATABASE=mongodb://mongo:27017/mydb \
-          SECRET=mySuperSecret \
-          KEY=mySessionKey \
           docker compose up --build -d
 
-      - name: Show logs (first 20 lines)
-        run: |
-          docker logs mern-admin --tail 20
+      - name: Show logs (first 50 lines)
+        run: docker logs mern-admin --tail 50

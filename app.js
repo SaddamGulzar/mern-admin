@@ -24,17 +24,27 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Fallbacks for environment variables
+const mongoUrl = process.env.DATABASE || "mongodb://mongo:27017/mydb";
+const sessionSecret = process.env.SECRET || "defaultSecret";
+const sessionKey = process.env.KEY || "defaultKey";
+
+
 // Sessions allow us to Contact data on visitors from request to request
 // This keeps admins logged in and allows us to send flash messages
 app.use(
   session({
-    secret: process.env.SECRET,
-    key: process.env.KEY,
+    secret: sessionSecret,
+    key: sessionKey,
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: process.env.DATABASE }),
+    store: MongoStore.create({ mongoUrl }),
   })
 );
+
+// Test route to verify app is running
+app.get("/test", (req, res) => res.send("App is running!"));
+
 
 // pass variables to our templates + all requests
 app.use((req, res, next) => {
