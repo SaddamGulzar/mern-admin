@@ -7,22 +7,30 @@ on:
 
 jobs:
   deploy:
+    name: Deploy on Self-Hosted Runner
     runs-on: self-hosted
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Cleanup old containers
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Remove old containers if they exist
         run: |
-          echo "Removing old containers if they exist..."
           docker rm -f mern-admin || true
           docker rm -f mongo || true
+          docker volume rm mern-admin_mongo-data || true
 
-      - name: Deploy with Docker Compose
+      - name: Build and run containers
         run: |
-          docker compose down -v
           docker compose up --build -d
 
-      - name: Show logs (first 50 lines)
-        run: docker logs mern-admin --tail 50
+      - name: Wait for app to start
+        run: |
+          echo "Waiting 10 seconds for app to start..."
+          sleep 10
+
+      - name: Test server
+        run: |
+          curl -f http://localhost:8192/test
