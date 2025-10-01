@@ -3,11 +3,15 @@ name: Deploy MERN Admin
 on:
   push:
     branches:
-      - master   # deploys on pushes to main branch
+      - master   # deploy on pushes to main branch
 
 jobs:
   deploy:
     runs-on: self-hosted
+    defaults:
+      run:
+        working-directory: ./mern-admin   # Ensure the runner uses the correct folder
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -20,8 +24,8 @@ jobs:
 
       - name: Deploy with Docker Compose
         run: |
-          docker compose down -v
-          docker compose up --build -d
+          docker compose --env-file .variables.env down -v
+          docker compose --env-file .variables.env up --build -d
 
       - name: Show logs (first 20 lines)
         run: |
