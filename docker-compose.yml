@@ -2,9 +2,9 @@ version: "3.9"
 
 services:
   mongo:
-    image: mongo:6
+    image: mongo:6.0
     container_name: mongo
-    restart: unless-stopped
+    restart: always
     ports:
       - "27017:27017"
     volumes:
@@ -13,12 +13,11 @@ services:
   mern-admin:
     build: .
     container_name: mern-admin
-    restart: unless-stopped
+    restart: always
     ports:
       - "8192:8192"
-    environment:
-      - MONGO_URL=mongodb://mongo:27017/mern-admin
-      - DB_URI=mongodb://mongo:27017/mern-admin
+    env_file:
+      - .variables.env
     depends_on:
       - mongo
 

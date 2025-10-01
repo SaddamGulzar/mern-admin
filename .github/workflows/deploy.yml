@@ -3,7 +3,7 @@ name: Deploy MERN Admin
 on:
   push:
     branches:
-      - master   # or master
+      - main   # deploys on pushes to main branch
 
 jobs:
   deploy:
@@ -14,11 +14,15 @@ jobs:
 
       - name: Cleanup old containers
         run: |
-          echo "Cleaning up old containers..."
+          echo "Removing old containers if they exist..."
           docker rm -f mern-admin || true
           docker rm -f mongo || true
 
       - name: Deploy with Docker Compose
         run: |
-          docker compose -f docker-compose.yml down
-          docker compose -f docker-compose.yml up -d --build
+          docker compose down -v
+          docker compose up --build -d
+
+      - name: Show logs (first 20 lines)
+        run: |
+          docker logs mern-admin --tail 20
