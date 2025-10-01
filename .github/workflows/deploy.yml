@@ -3,7 +3,7 @@ name: Deploy MERN Admin
 on:
   push:
     branches:
-      - master  # deploy on pushes to main branch
+      - main
 
 jobs:
   deploy:
@@ -21,8 +21,15 @@ jobs:
 
       - name: Deploy with Docker Compose
         run: |
-          docker compose --env-file .variables.env down -v
-          docker compose --env-file .variables.env up --build -d
+          DATABASE=mongodb://mongo:27017/mydb \
+          SECRET=mySuperSecret \
+          KEY=mySessionKey \
+          docker compose down -v
+
+          DATABASE=mongodb://mongo:27017/mydb \
+          SECRET=mySuperSecret \
+          KEY=mySessionKey \
+          docker compose up --build -d
 
       - name: Show logs (first 20 lines)
         run: |
