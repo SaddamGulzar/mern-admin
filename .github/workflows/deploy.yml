@@ -3,7 +3,7 @@ name: Deploy MERN Admin
 on:
   push:
     branches:
-      - main   # deploys on pushes to main branch
+      - master   # deploys on pushes to main branch
 
 jobs:
   deploy:
