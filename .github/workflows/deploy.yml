@@ -12,6 +12,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Remove old containers
+        run: |
+          echo "Cleaning up old containers..."
+          docker rm -f mern-admin || true
+          docker rm -f mongo || true
+
       - name: Deploy with Docker Compose
         run: |
           docker compose -f docker-compose.yml down
