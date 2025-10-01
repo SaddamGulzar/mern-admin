@@ -1,0 +1,31 @@
+name: Deploy MERN Admin
+
+on:
+  push:
+    branches:
+      - main   # 👈 change if your branch is different
+
+jobs:
+  deploy:
+    name: Deploy on Self-Hosted Runner
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build and Run Docker Container
+        run: |
+          echo "Building MERN Admin Docker container..."
+
+          # stop + remove old container if exists
+          docker stop mern-admin || true
+          docker rm mern-admin || true
+
+          # build fresh image (using cache)
+          docker build -t mern-admin .
+
+          # run container (keep running after job ends)
+          docker run -d \
+            --name mern-admin \
+            -p 8192:8192 \
+            mern-admin
